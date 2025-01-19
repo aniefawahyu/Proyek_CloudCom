@@ -85,7 +85,7 @@ const DashboardPage = () => {
           }}
         >
           <Typography variant="h5" sx={{ color: "white" }}>
-            Sales Dashboard
+            Master Dashboard
           </Typography>
         </Box>
 

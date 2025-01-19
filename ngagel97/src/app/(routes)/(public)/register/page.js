@@ -49,40 +49,40 @@ export default function RegisterPage() {
 
   const schema = Joi.object({
     name: Joi.string().min(3).required().messages({
-      "string.base": `"Nama" harus berupa teks`,
-      "string.empty": `"Nama" wajib diisi`,
-      "string.min": `"Nama" minimal {#limit} karakter`,
+      "string.base": `Name must be a text`,
+      "string.empty": `Name should not be empty`,
+      "string.min": `Name must be a minimum of {#limit} Characters`,
     }),
     email: Joi.string()
       .pattern(new RegExp(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/))
       .required()
       .messages({
-        "string.base": `"Email" harus berupa teks`,
-        "string.pattern.base": `"Email" harus valid`,
-        "string.empty": `"Email" wajib diisi`,
+        "string.base": `Email must be a text`,
+        "string.pattern.base": `Email must be a valid email`,
+        "string.empty": `Email should not be empty`,
       }),
     password: Joi.string()
       .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$"))
       .required()
       .messages({
-        "string.base": `"Password" harus berupa teks`,
-        "string.pattern.base": `"Password" minimal 8 karakter, mengandung setidaknya 1 huruf kecil, 1 huruf besar, dan 1 angka.`,
-        "string.empty": `"Password" wajib diisi`,
+        "string.base": `Password must be a text`,
+        "string.pattern.base": `Password must be a minimum of 8 letters and consist of 1 number, 1 Lowercase character and 1 Capital letter`,
+        "string.empty": `Password should not be empty`,
       }),
     confirmPassword: Joi.string()
       .valid(Joi.ref("password"))
       .required()
       .messages({
-        "any.only": `"Konfirmasi Password" harus sama dengan "Password"`,
-        "string.empty": `"Konfirmasi Password" wajib diisi`,
+        "any.only": `Confirmation Password must be the same as Password`,
+        "string.empty": `Confirmation Password should not be empty`,
       }),
     phoneNumber: Joi.string()
       .pattern(/^[0-9]{10,15}$/)
       .required()
       .messages({
-        "string.base": `"Nomor Telepon" harus berupa teks`,
-        "string.pattern.base": `"Nomor Telepon" harus valid`,
-        "string.empty": `"Nomor Telepon" wajib diisi`,
+        "string.base": `Phone Number must be a text`,
+        "string.pattern.base": `Phone Number Invalid`,
+        "string.empty": `Phone Number should not be empty`,
       }),
   });
 
@@ -155,7 +155,7 @@ export default function RegisterPage() {
             }}
           >
             <TextField
-              label="Nama"
+              label="Name"
               fullWidth
               {...register("name")}
               error={!!errors.name}
@@ -178,7 +178,7 @@ export default function RegisterPage() {
               helperText={errors.password?.message}
             />
             <TextField
-              label="Konfirmasi Password"
+              label="Confirmation Password"
               type="password"
               fullWidth
               {...register("confirmPassword")}
@@ -186,7 +186,7 @@ export default function RegisterPage() {
               helperText={errors.confirmPassword?.message}
             />
             <TextField
-              label="Nomor Telepon"
+              label="Phone Number"
               fullWidth
               {...register("phoneNumber")}
               error={!!errors.phoneNumber}

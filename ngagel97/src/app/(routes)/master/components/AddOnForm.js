@@ -13,7 +13,7 @@ import {
   FormControl,
   FormHelperText,
   Alert,
-  TextareaAutosize as BaseTextareaAutosize 
+  TextareaAutosize as BaseTextareaAutosize,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import Joi from "joi";
@@ -30,10 +30,12 @@ const Textarea = styled(BaseTextareaAutosize)(
     line-height: 1.5;
     padding: 8px 12px;
     border-radius: 5px;
-    color: ${theme.palette.mode === 'dark' ? '#C7D0DD' : '#1C2025'};
-    background: ${theme.palette.mode === 'dark' ? '#1C2025' : '#fff'};
-    border: 1px solid ${theme.palette.mode === 'dark' ? '#434D5B' : '#DAE2ED'};
-    box-shadow: 0 2px 2px ${theme.palette.mode === 'dark' ? '#1C2025' : '#F3F6F9'};
+    color: ${theme.palette.mode === "dark" ? "#C7D0DD" : "#1C2025"};
+    background: ${theme.palette.mode === "dark" ? "#1C2025" : "#fff"};
+    border: 1px solid ${theme.palette.mode === "dark" ? "#434D5B" : "#DAE2ED"};
+    box-shadow: 0 2px 2px ${
+      theme.palette.mode === "dark" ? "#1C2025" : "#F3F6F9"
+    };
 
     &:hover {
       border-color: #3399FF;
@@ -41,7 +43,9 @@ const Textarea = styled(BaseTextareaAutosize)(
 
     &:focus {
       border-color: #3399FF;
-      box-shadow: 0 0 0 3px ${theme.palette.mode === 'dark' ? '#0072E5' : '#b6daff'};
+      box-shadow: 0 0 0 3px ${
+        theme.palette.mode === "dark" ? "#0072E5" : "#b6daff"
+      };
     }
 
     &:focus-visible {
@@ -165,16 +169,14 @@ export default function AddOnForm({ mode = "add", id }) {
       });
 
       if (res.ok) {
-        alert(
-          `Add-On berhasil ${mode === "add" ? "ditambahkan" : "diperbarui"}!`
-        );
+        alert(`Add-On ${mode === "add" ? "added" : "updated"} successfully!`);
         router.push("/master/addon");
       } else {
         const errorData = await res.json();
         setError(errorData.error || "Add-On submission failed");
       }
     } catch (error) {
-      setError("Gagal menyimpan perubahan pada Add On. Silahkan coba lagi.");
+      setError("Failed to save Add On changes. Please try again.");
     }
   };
 
@@ -192,7 +194,11 @@ export default function AddOnForm({ mode = "add", id }) {
         flexDirection="column"
         alignItems="center"
         marginTop={5}
-        style={{ backgroundColor: "white", padding: "20px", borderRadius: "8px" }}
+        style={{
+          backgroundColor: "white",
+          padding: "20px",
+          borderRadius: "8px",
+        }}
       >
         <Typography variant="h4" gutterBottom>
           {mode === "add" ? "ADD ADD-ON" : "EDIT ADD-ON"}

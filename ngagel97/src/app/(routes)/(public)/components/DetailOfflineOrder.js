@@ -143,7 +143,7 @@ const DetailOfflineOrder = ({ order, onClose }) => {
       align: 'center'
     });
   
-    addStyledBox(`Tanggal Transaksi: ${formattedDate}`, {
+    addStyledBox(`Transaction Date: ${formattedDate}`, {
       backgroundColor: '#ffffff',
       align: 'center'
     });
@@ -245,8 +245,8 @@ const renderItems = (items, title, isJasa = false) => {
 };
 
 // Replace in existing PDF generation logic
-renderItems(order.barang, "Barang");
-renderItems(order.jasa, "Jasa", true);
+renderItems(order.barang, "Item");
+renderItems(order.jasa, "Service", true);
 renderItems(order.addOns, "Add-Ons");
 
   
@@ -254,7 +254,7 @@ renderItems(order.addOns, "Add-Ons");
     const totalTanpaOngkir = order.total - (order.ongkir || 0);
   
     // ... (keeping existing total section)
-    addStyledBox(`Total Pembelian: Rp${totalTanpaOngkir.toLocaleString()}`, {
+    addStyledBox(`Total Purchase: Rp${totalTanpaOngkir.toLocaleString()}`, {
       backgroundColor: '#f5f5f5',
       width: pageWidth - (margins * 2),
       align: 'right'
@@ -438,7 +438,7 @@ renderItems(order.addOns, "Add-Ons");
                 {`Order ID: ${order.idTransaksi}`}
               </Typography>
               <Typography variant="subtitle1" sx={{ marginBottom: 1 }}>
-                {`Tanggal Transaksi: ${formattedDate}`}
+                {`Transaction Date: ${formattedDate}`}
               </Typography>
               <Typography variant="subtitle1" sx={{ marginBottom: 1 }}>
                 {`Admin: ${admin ? admin.name : "-"}`}
@@ -478,7 +478,7 @@ renderItems(order.addOns, "Add-Ons");
                   color: "#1a237e",
                   fontWeight: "bold"
                 }}>
-                  Barang
+                  Item
                 </Typography>
                 <Box>{renderBarang(order.barang)}</Box>
               </Box>
@@ -491,7 +491,7 @@ renderItems(order.addOns, "Add-Ons");
                   color: "#1a237e",
                   fontWeight: "bold"
                 }}>
-                  Jasa
+                  Service
                 </Typography>
                 <Box>{renderJasa(order.jasa)}</Box>
               </Box>
@@ -524,13 +524,8 @@ renderItems(order.addOns, "Add-Ons");
                 alignItems: "flex-end",
               }}>
                 <Typography sx={{ marginBottom: 1 }}>
-                  {`Total Pembelian: Rp${totalTanpaOngkir.toLocaleString()}`}
+                  {`Total Purchase: Rp${totalTanpaOngkir.toLocaleString()}`}
                 </Typography>
-                {order.ongkir && (
-                  <Typography sx={{ marginBottom: 1 }}>
-                    {`Ongkir: Rp${order.ongkir.toLocaleString()}`}
-                  </Typography>
-                )}
                 <Typography sx={{ 
                   fontWeight: "bold",
                   fontSize: "1.2em",

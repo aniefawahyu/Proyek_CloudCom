@@ -19,6 +19,7 @@ const MapComponent = dynamic(() => import("../components/MapComponent"), {
 });
 
 const CheckoutPage = () => {
+  
   const [cart, setCart] = useState([]); // Cart items
   const [user, setUser] = useState(null); // User info
   const [position, setPosition] = useState([-7.2891, 112.7578]); // Default coordinates
@@ -29,38 +30,58 @@ const CheckoutPage = () => {
   const [distance, setDistance] = useState(null);
   const router = useRouter();
   const maxDistance = 5;
-
+  
   const haversineDistance = (coords2) => {
     const toRad = (angle) => (angle * Math.PI) / 180;
-  
+    
     const R = 6371; // Radius bumi dalam kilometer
-    const lat1 = -7.2853, lon1 = 112.7526;
+    const lat1 = -7.2853,
+    lon1 = 112.7526;
     const [lat2, lon2] = coords2;
-  
+
     const dLat = toRad(lat2 - lat1);
     const dLon = toRad(lon2 - lon1);
-  
+    
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(toRad(lat1)) *
-        Math.cos(toRad(lat2)) *
+      Math.cos(toRad(lat2)) *
         Math.sin(dLon / 2) *
         Math.sin(dLon / 2);
-  
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c; // Hasil jarak dalam kilometer
   };
-  
+
   // Fetch cart and user data
   useEffect(() => {
     const fetchData = async () => {
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      const orderId = urlParams.get("order_id") || null; // "order-123"
+      const statusCode = urlParams.get("status_code") || null; // "200"
+      const transactionStatus = urlParams.get("transaction_status") || null;
+      if (orderId && statusCode && transactionStatus) {
+        try {
+          const res2 = await fetch(`/api/cart`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+          });
+
+          // Redirect ke halaman order setelah update berhasil
+          if (transactionStatus == "settlement") router.push("/order");
+          else router.push("/checkout");
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
       try {
         // Fetch cart data
         const cartResponse = await fetch("/api/cart");
         const cartData = await cartResponse.json();
         if (cartData.success) {
           setCart(cartData.data.items);
-
 
           const userResponse = await fetch(`/api/user/${cartData.data.userId}`);
           const userData = await userResponse.json();
@@ -83,10 +104,10 @@ const CheckoutPage = () => {
           `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
         );
         const data = await response.json();
-        setDistance(haversineDistance(position))
+        setDistance(haversineDistance(position));
         // if(haversineDistance(position) > maxDistance){
         //   alert(`jarak melebihi batas: ${Math.round(haversineDistance(position))} km`)
-          
+
         // }
         calculateShipping();
         setAddress(data.display_name || "Alamat tidak ditemukan");
@@ -123,24 +144,23 @@ const CheckoutPage = () => {
     fetchAddress();
   }, [position]);
 
-
-
   const handlePayment = async () => {
     console.log(user);
-    
+
     try {
-      const total = cart.reduce((sum, item) => sum + item.subtotal, 0) + shippingCost;
+      const total =
+        cart.reduce((sum, item) => sum + item.subtotal, 0) + shippingCost;
       console.log({
         userId: user._id,
         alamat: address,
         notes: notes,
         ongkir: shippingCost,
-        subtotal: total-shippingCost,
+        subtotal: total - shippingCost,
         total: total,
         jasa: cart,
-        user: user
+        user: user,
       });
-      
+
       // Call API to create Snap Token
       const response = await fetch("/api/midtrans/create_token", {
         method: "POST",
@@ -150,10 +170,10 @@ const CheckoutPage = () => {
           alamat: address,
           notes: notes,
           ongkir: shippingCost,
-          subtotal: total-shippingCost,
+          subtotal: total - shippingCost,
           total: total,
           jasa: cart,
-          user: user
+          user: user,
         }),
       });
 
@@ -166,11 +186,10 @@ const CheckoutPage = () => {
       window.snap.pay(snapToken, {
         onSuccess: async function (result) {
           console.log("Payment Success:", result);
-          // alert("Pembayaran Berhasil!");
-      
-          try {
-            // Panggil API untuk update transaksi
-            const response = await fetch(`/api/transaction/online/${transaksi_id}`, {
+
+          const response = await fetch(
+            `/api/transaction/online/${transaksi_id}`,
+            {
               method: "PUT",
               headers: {
                 "Content-Type": "application/json",
@@ -178,26 +197,15 @@ const CheckoutPage = () => {
               body: JSON.stringify({
                 status: "pending",
               }),
-            });
-      
-            if (!response.ok) {
-              throw new Error("Failed to update transaction");
             }
-      
-            const responseData = await response.json();
-            console.log("Update Success:", responseData);
+          );
 
-            const res2 = await fetch(`/api/cart`, {
-              method: "DELETE",
-              headers: { "Content-Type": "application/json" },
-            });
-      
-            // Redirect ke halaman order setelah update berhasil
-            router.push("/order");
-          } catch (error) {
-            console.error("Error updating transaction:", error.message);
-            alert("Gagal memperbarui transaksi. Silakan coba lagi.");
+          if (!response.ok) {
+            throw new Error("Failed to update transaction");
           }
+
+          const responseData = await response.json();
+          console.log("Update Success:", responseData);
         },
         onPending: function (result) {
           console.log("Payment Pending:", result);
@@ -211,20 +219,23 @@ const CheckoutPage = () => {
           alert("Transaksi dibatalkan.");
           try {
             // Panggil API untuk update transaksi
-            const response = await fetch(`/api/transaction/online/${transaksi_id}`, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                status: "failed",
-              }),
-            });
-      
+            const response = await fetch(
+              `/api/transaction/online/${transaksi_id}`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  status: "failed",
+                }),
+              }
+            );
+
             if (!response.ok) {
               throw new Error("Failed to update transaction");
             }
-      
+
             const responseData = await response.json();
             console.log("Update Success:", responseData);
           } catch (error) {
@@ -255,12 +266,12 @@ const CheckoutPage = () => {
       {/* Left Section */}
       <Box flex={1}>
         <Typography variant="h6" mb={2}>
-          Informasi Pembeli
+          {"Customer's Information"}
         </Typography>
         {user && (
           <Box display="flex" flexDirection="column" gap={2}>
             <TextField
-              label="Nama Pembeli"
+              label="Name"
               variant="outlined"
               fullWidth
               value={user.name}
@@ -269,7 +280,7 @@ const CheckoutPage = () => {
               }}
             />
             <TextField
-              label="Email Pembeli"
+              label="Email"
               variant="outlined"
               fullWidth
               value={user.email}
@@ -278,7 +289,7 @@ const CheckoutPage = () => {
               }}
             />
             <TextField
-              label="Nomor Handphone"
+              label="Phone Number"
               variant="outlined"
               fullWidth
               value={user.phone_number || "-"}
@@ -295,7 +306,7 @@ const CheckoutPage = () => {
             <MapComponent position={position} onLocationChange={setPosition} />
           </Box>
           <TextField
-            label="Alamat Terpilih"
+            label="Location"
             variant="outlined"
             fullWidth
             value={address}
@@ -303,19 +314,19 @@ const CheckoutPage = () => {
               readOnly: true,
             }}
           />
-          { distance != null &&
+          {distance != null && (
+            <TextField
+              label="Distance"
+              variant="outlined"
+              fullWidth
+              value={`${distance.toFixed(2)} km`}
+              InputProps={{
+                readOnly: true,
+              }}
+            />
+          )}
           <TextField
-            label="Jarak"
-            variant="outlined"
-            fullWidth
-            value={`${distance.toFixed(2)} km`}
-            InputProps={{
-              readOnly: true,
-            }}
-          />
-          }
-          <TextField
-            label="Catatan"
+            label="Notes"
             variant="outlined"
             fullWidth
             multiline
@@ -328,16 +339,16 @@ const CheckoutPage = () => {
       {/* Right Section */}
       <Box flex={1}>
         <Typography variant="h6" mb={2}>
-          Detail Produk
+          {"Service's Details"}
         </Typography>
         {cart.map((item, index) => (
           <Card key={index} sx={{ mb: 2 }}>
             <CardContent>
               <Box display="flex" flexDirection="column" gap={1}>
-                <Typography variant="body1">Nama: {item.nama}</Typography>
-                <Typography variant="body2">Jumlah: {item.qty}</Typography>
+                <Typography variant="body1">Name: {item.nama}</Typography>
+                <Typography variant="body2">Quantity: {item.qty}</Typography>
                 <Typography variant="body2">
-                  Harga: Rp. {item.harga.toLocaleString()}
+                  Price: Rp. {item.harga.toLocaleString()}
                 </Typography>
                 {item.addOns.length > 0 && (
                   <Typography variant="body2">
@@ -360,13 +371,13 @@ const CheckoutPage = () => {
         ))}
 
         <Typography variant="h6" mt={4} mb={2}>
-          Ringkasan Harga
+          Price Summary
         </Typography>
         <Card>
           <CardContent>
             <Box display="flex" justifyContent="space-between" mb={1}>
               <Typography variant="body2">
-                Total Harga ({cart.length} Produk):
+                Total ({cart.length} Service):
               </Typography>
               <Typography variant="body2">
                 Rp.{" "}
@@ -376,7 +387,7 @@ const CheckoutPage = () => {
               </Typography>
             </Box>
             <Box display="flex" justifyContent="space-between" mb={1}>
-              <Typography variant="body2">Ongkos Kirim:</Typography>
+              <Typography variant="body2">Shipping Cost:</Typography>
               <Typography variant="body2">
                 Rp. {shippingCost.toLocaleString()}
               </Typography>
@@ -385,7 +396,7 @@ const CheckoutPage = () => {
             <Divider sx={{ my: 1 }} />
             <Box display="flex" justifyContent="space-between">
               <Typography variant="body1" fontWeight="bold">
-                Total Tagihan:
+                Grand Total:
               </Typography>
               <Typography variant="body1" fontWeight="bold">
                 Rp.{" "}
@@ -397,20 +408,26 @@ const CheckoutPage = () => {
             </Box>
           </CardContent>
         </Card>
-        {distance > maxDistance &&
-          <Typography variant="body1" color="red" fontWeight="bold" sx={{ mt: 3, py: 1.5 }}>
-            Jarak lokasi anda melebihi batas maksimal lokasi pengantaran kami ({maxDistance} km)! 
-        </Typography>
-        }
+        {distance > maxDistance && (
+          <Typography
+            variant="body1"
+            color="red"
+            fontWeight="bold"
+            sx={{ mt: 3, py: 1.5 }}
+          >
+            Your location distance exceeds our maximum delivery location limit,
+            ({maxDistance} km)!
+          </Typography>
+        )}
         <Button
           variant="contained"
           color="primary"
           fullWidth
-          disabled={distance>maxDistance}
+          disabled={distance > maxDistance}
           sx={{ mt: 3, py: 1.5 }}
           onClick={handlePayment}
         >
-          Lanjut Pembayaran
+          Continue to Payment
         </Button>
       </Box>
     </Box>

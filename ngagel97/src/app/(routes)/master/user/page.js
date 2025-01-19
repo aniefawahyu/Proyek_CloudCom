@@ -115,7 +115,7 @@ const StatusPage = () => {
           }}
         >
           <Typography variant="h6" sx={{ color: "white" }}>
-            Status User
+            User Status
           </Typography>
         </Box>
 

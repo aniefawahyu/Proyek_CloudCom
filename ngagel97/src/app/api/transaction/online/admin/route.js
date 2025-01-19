@@ -23,8 +23,9 @@ export async function GET(req) {
     // Perbaikan query menggunakan $in
     let orders = await Transaksi.find({
       isOnline: true,
-      status: { $in: ["pending", "progress"] }, // Menggunakan operator $in
-    });
+      status: { $in: ["pending", "progress"] }
+  })
+  .sort({ createdAt: -1 }); // -1 for descending order (newest first)
 
     orders = orders.filter((item) => !item.adminId || item.adminId == adminId);
 

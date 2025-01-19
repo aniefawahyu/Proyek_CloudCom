@@ -66,23 +66,23 @@ export default function ServiceForm({ mode = "add", id }) {
     setValue,
   } = useForm();
 
-    const schema = Joi.object({
-      nama: Joi.string().min(3).required().messages({
-        "string.base": `"Name" Must be Text`,
-        "string.empty": `"Name" Can't be empty`,
-        "string.min": `"Name" Minimum Character is {#limit}`,
-      }),
-      harga: Joi.number().min(100).positive().required().messages({
-        "number.base": `"Harga" harus berupa angka`,
-        "number.min": `"Harga" minimal Rp 100,-`,
-        "number.positive": `"Harga" harus angka positive`,
-        "number.empty": `"Harga" tidak boleh kosong`,
-      }),
-      deskripsi: Joi.string().required().messages({
-        "string.base": `"Description" Must be a Text`,
-        "string.empty": `"Description" Can't be Empty`,
-      }),
-    });
+  const schema = Joi.object({
+    nama: Joi.string().min(3).required().messages({
+      "string.base": `"Name" Must be Text`,
+      "string.empty": `"Name" Can't be empty`,
+      "string.min": `"Name" Minimum Character is {#limit}`,
+    }),
+    harga: Joi.number().min(100).positive().required().messages({
+      "number.base": `Price must be a number`,
+      "number.min": `Price must be more than Rp 100,-`,
+      "number.positive": `Price can't be less than Rp 0,-`,
+      "number.empty": `Price should not be empty`,
+    }),
+    deskripsi: Joi.string().required().messages({
+      "string.base": `"Description" Must be a Text`,
+      "string.empty": `"Description" Can't be Empty`,
+    }),
+  });
 
   const fetchServiceData = async (id) => {
     try {
@@ -167,16 +167,14 @@ export default function ServiceForm({ mode = "add", id }) {
         }),
       });
       if (res.ok) {
-        alert(
-          `Jasa berhasil ${mode === "add" ? "Add" : "Update"}!`
-        );
+        alert(`Service ${mode === "add" ? "added" : "updated"} successfully!`);
         router.push("/master/service");
       } else {
         const errorData = await res.json();
-        setError(errorData.error || "Jasa submission failed");
+        setError(errorData.error || "Service submission failed");
       }
     } catch (error) {
-      setError("Gagal menyimpan perubahan pada Jasa. Silahkan coba lagi.");
+      setError("Failed to save Service changes. Please try again.");
     }
   };
 
@@ -195,19 +193,6 @@ export default function ServiceForm({ mode = "add", id }) {
         alignItems="center"
         marginTop={5}
       >
-        {/* <Box
-          sx={{
-            backgroundColor: "#fff",
-            padding: 2,
-            borderRadius: 2,
-            textAlign: "center",
-            width: "100%",
-          }}
-        >
-          <Typography variant="h4" gutterBottom>
-            {mode === "add" ? "Tambah Jasa" : "Edit Jasa"}
-          </Typography>
-        </Box> */}
         <Box
           sx={{
             backgroundColor: "#fff",

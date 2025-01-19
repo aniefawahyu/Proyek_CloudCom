@@ -117,16 +117,14 @@ export default function ItemForm({ mode = "add", id }) {
       });
 
       if (res.ok) {
-        alert(
-          `Barang berhasil ${mode === "add" ? "ditambahkan" : "diperbarui"}!`
-        );
+        alert(`Item ${mode === "add" ? "added" : "updated"} successfully!`);
         router.push("/master/item");
       } else {
         const errorData = await res.json();
-        setError(errorData.error || "Barang submission failed");
+        setError(errorData.error || "Item submission failed");
       }
     } catch (error) {
-      setError("Gagal menyimpan perubahan pada Add On. Silahkan coba lagi.");
+      setError("Failed to save Item changes. Please try again.");
     }
   };
 
@@ -152,11 +150,7 @@ export default function ItemForm({ mode = "add", id }) {
           boxShadow={3}
           width="100%"
         >
-          <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-          >
+          <Box display="flex" flexDirection="column" alignItems="center">
             <Typography variant="h4" gutterBottom>
               {mode === "add" ? "ADD ITEM" : "EDIT ITEM"}
             </Typography>

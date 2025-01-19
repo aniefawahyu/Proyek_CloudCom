@@ -229,9 +229,7 @@ const DailySalesReport = () => {
 
     // Add total sales
     doc.text(
-      `Total Daily Sales: Rp. ${totalRevenueFromTable.toLocaleString(
-        "id-ID"
-      )}`,
+      `Total Daily Sales: Rp. ${totalRevenueFromTable.toLocaleString("id-ID")}`,
       textX,
       doc.lastAutoTable.finalY + 10 // Adjusting space after table
     );
@@ -250,13 +248,10 @@ const DailySalesReport = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Time</TableCell>
               <TableCell>Product</TableCell>
               <TableCell>Quantity</TableCell>
               <TableCell>Unit Price</TableCell>
               <TableCell>Subtotal</TableCell>
-              <TableCell>Payment Type</TableCell>
-              <TableCell>Total</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -265,11 +260,6 @@ const DailySalesReport = () => {
                 (acc, jasa) => acc + jasa.addOns.length,
                 0
               ); // Total add-ons from all services
-              const totalRows =
-                transaction.jasa.length +
-                totalAddOns +
-                transaction.barang.length +
-                transaction.addOns.length; // Total rows for rowSpan
 
               return (
                 <React.Fragment
@@ -281,16 +271,6 @@ const DailySalesReport = () => {
                       key={`jasa-${transaction._id}-${jasaIndex}`}
                     >
                       <TableRow>
-                        {jasaIndex === 0 && (
-                          <TableCell rowSpan={totalRows}>
-                            {new Intl.DateTimeFormat("en-US", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                              hour12: false,
-                              timeZone: "Asia/Jakarta",
-                            }).format(new Date(transaction.createdAt))}
-                          </TableCell>
-                        )}
                         <TableCell>Service: {jasa.nama}</TableCell>
                         <TableCell>
                           {jasa.lembar * jasa.qty || 0} sheets
@@ -299,19 +279,8 @@ const DailySalesReport = () => {
                           Rp {jasa.harga.toLocaleString("id-ID")}
                         </TableCell>
                         <TableCell>
-                          Rp{" "}
-                          {(jasa.harga * jasa.lembar * jasa.qty).toLocaleString(
-                            "id-ID"
-                          )}
+                          Rp {transaction.subtotal.toLocaleString("id-ID")}
                         </TableCell>
-                        <TableCell rowSpan={totalRows}>
-                          {transaction.isOnline ? "Online" : "Offline"}
-                        </TableCell>
-                        {jasaIndex === 0 && (
-                          <TableCell rowSpan={totalRows}>
-                            Rp {transaction.subtotal.toLocaleString("id-ID")}
-                          </TableCell>
-                        )}
                       </TableRow>
 
                       {/* Render for add-ons */}

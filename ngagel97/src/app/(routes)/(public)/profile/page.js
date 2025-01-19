@@ -40,24 +40,24 @@ export default function ProfilePage() {
 
   const schema = Joi.object({
     name: Joi.string().min(3).required().messages({
-      "string.base": `"Nama" harus berupa teks`,
-      "string.empty": `"Nama" wajib diisi`,
-      "string.min": `"Nama" minimal {#limit} karakter`,
+      "string.base": `Name must be Text`,
+      "string.empty": `Name Should not be empty`,
+      "string.min": `Name must be a minimal of {#limit} Character`,
     }),
     phoneNumber: Joi.string()
       .pattern(/^[0-9]{10,15}$/)
       .required()
       .messages({
-        "string.base": `"Nomor Telepon" harus berupa teks`,
-        "string.pattern.base": `"Nomor Telepon" harus valid`,
-        "string.empty": `"Nomor Telepon" wajib diisi`,
+        "string.base": `Phone number must be a number`,
+        "string.pattern.base": `Phone Number Invalid`,
+        "string.empty": `Phone Number should not be empty`,
       }),
     oldPassword: Joi.string().allow(""),
     newPassword: Joi.string()
       .allow("")
       .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$"))
       .messages({
-        "string.pattern.base": `"Password Baru" minimal 8 karakter, mengandung setidaknya 1 huruf kecil, 1 huruf besar, dan 1 angka.`,
+        "string.pattern.base": `New Password must be a minimum of 8 letters and consist of 1 number, 1 Lowercase character and 1 Capital letter`,
       }),
   });
 
@@ -155,21 +155,21 @@ export default function ProfilePage() {
             }}
           >
             <TextField
-              label="Nama"
+              label="Name"
               fullWidth
               {...register("name")}
               error={!!errors.name}
               helperText={errors.name?.message}
             />
             <TextField
-              label="Nomor Telepon"
+              label="Phone Number"
               fullWidth
               {...register("phoneNumber")}
               error={!!errors.phoneNumber}
               helperText={errors.phoneNumber?.message}
             />
             <TextField
-              label="Password Lama"
+              label="Old Password"
               type="password"
               fullWidth
               {...register("oldPassword")}
@@ -177,7 +177,7 @@ export default function ProfilePage() {
               helperText={errors.oldPassword?.message}
             />
             <TextField
-              label="Password Baru"
+              label="New Password"
               type="password"
               fullWidth
               {...register("newPassword")}
